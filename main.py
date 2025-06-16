@@ -1,11 +1,22 @@
 import pygame
 import sys
+import logging
+
+def get_valid_paddle_speed(arg):
+    try:
+        speed = int(arg)
+        if not 1 <= speed <= 20:
+            raise ValueError("Paddle speed must be between 1 and 20.")
+        return speed
+    except (IndexError, ValueError) as e:
+        logging.warning(f"Invalid paddle_speed input: {e}. Using default value 5.")
+        return 5
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
 
 # --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    paddle_speed = int(sys.argv[1])  # ⚠️ No validation: user can input very large or negative values
-except (IndexError, ValueError):
-    paddle_speed = 5  # fallback default
+paddle_speed = get_valid_paddle_speed(sys.argv[1] if len(sys.argv) > 1 else None)
 
 # --- Pygame Setup ---
 pygame.init()

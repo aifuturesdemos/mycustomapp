@@ -1,11 +1,16 @@
+import re
 import pygame
 import sys
 
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
-    paddle_speed = int(sys.argv[1])  # ⚠️ No validation: user can input very large or negative values
+    user_input = sys.argv[1]
+    if re.match(r'^\d+$', user_input):
+        paddle_speed = int(user_input)  # Validated input
+    else:
+        raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):
-    paddle_speed = 5  # fallback default
+    paddle_speed = 5  # Fallback default
 
 # --- Pygame Setup ---
 pygame.init()

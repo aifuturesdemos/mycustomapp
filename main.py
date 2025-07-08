@@ -1,15 +1,25 @@
 import re
-import pygame
+import sys
+import pygam e
 import sys
 
 # --- Vulnerable Input: Paddle speed from command-line ---
+def is_positive_integer(value):
+    try:
+        int_value = int(value)
+        return int_value > 0
+    except (ValueError, TypeError):
+        return False
+
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
+    if not is_positive_integer(user_input):
         raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
+    paddle_speed = int(user_input)  # Validated input
+    if paddle_speed < 1 or paddle_speed > 20:
+        raise ValueError("Paddle speed must be between 1 and 20.")
+except (IndexError, ValueError) as e:
+    print(f"Error: {e}")
     paddle_speed = 5  # Fallback default
 
 # --- Pygame Setup ---

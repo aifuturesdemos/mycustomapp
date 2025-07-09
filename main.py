@@ -7,6 +7,9 @@ try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):
         paddle_speed = int(user_input)  # Validated input
+        # Added range validation for security
+        if not (1 <= paddle_speed <= 100):
+            raise ValueError("Input out of allowed range (1-100).")
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):

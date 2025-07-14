@@ -5,10 +5,13 @@ import sys
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
+    # Validate input: must be a positive integer between 1 and 10
     if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+        paddle_speed = int(user_input)
+        if not (1 <= paddle_speed <= 10):
+            raise ValueError("Input out of allowed range: Only integers 1-10 are allowed.")
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+        raise ValueError("Invalid input: Only positive integers 1-10 are allowed.")
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 

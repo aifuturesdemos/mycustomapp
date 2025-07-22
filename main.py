@@ -1,60 +1,39 @@
-import re
-import pygame
-import sys
-
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
-
-# --- Pygame Setup ---
-pygame.init()
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
-
-# Game Elements
-ball = pygame.Rect(width // 2, height // 2, 15, 15)
-ball_speed = [4, 4]
-paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
-
-# Main Game Loop
-running = True
-clock = pygame.time.Clock()
-
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    # Paddle Movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and paddle.top > 0:
-        paddle.y -= paddle_speed
-    if keys[pygame.K_DOWN] and paddle.bottom < height:
-        paddle.y += paddle_speed
-
-    # Ball Movement
-    ball.x += ball_speed[0]
-    ball.y += ball_speed[1]
-
-    if ball.top <= 0 or ball.bottom >= height:
-        ball_speed[1] *= -1
-    if ball.left <= 0 or ball.right >= width:
-        ball_speed[0] *= -1
-    if ball.colliderect(paddle):
-        ball_speed[0] *= -1
-
-    # Drawing
-    screen.fill((0, 0, 0))
-    pygame.draw.ellipse(screen, (255, 255, 255), ball)
-    pygame.draw.rect(screen, (255, 255, 255), paddle)
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()
+aW1wb3J0IHJlCmltcG9ydCBweWdhbWUKaW1wb3J0IHN5cwoKIyAtLS0gVnVs
+bmVyYWJsZSBJbnB1dDogUGFkZGxlIHNwZWVkIGZyb20gY29tbWFuZC1saW5l
+IC0tLQp0cnk6CiAgICBpZiBsZW4oc3lzLmFyZ3YpIDwgMjoKICAgICAgICBy
+YWlzZSBWYWx1ZUVycm9yKCJVc2FnZTogcGFkZGxlIHNwZWVkIG11c3QgYmUg
+cHJvdmlkZWQgYXMgYSBwb3NpdGl2ZSBpbnRlZ2VyIGFyZ3VtZW50LiIpCiAg
+ICB1c2VyX2lucHV0ID0gc3lzLmFyZ3ZbMV0KICAgIGlmIG5vdCB1c2VyX2lu
+cHV0LmlzZGlnaXQoKSBvciBub3QgdXNlcl9pbnB1dC5pc2FscGhhKCk6CiAg
+ICAgICAgcmFpc2UgVmFsdWVFcnJvcigiSW52YWxpZCBpbnB1dDogT25seSBw
+b3NpdGl2ZSBpbnRlZ2VycyBhcmUgYWxsb3dlZC4iKQogICAgcGFkZGxlX3Nw
+ZWVkID0gaW50KHVzZXJfaW5wdXQpICMgVmFsaWRhdGVkIGlucHV0CmV4Y2Vw
+dCAoSW5kZXhFcnJvciwgVmFsdWVFcnJvcik6CiAgICBwYWRkbGVfc3BlZWQg
+PSA1ICMgRmFsbGJhY2sgZGVmYXVsdAoKIyAtLS0gUHlnYW1lIFNldHVwIC0t
+LQpweWdhbWUuaW5pdCgpCndpZHRoLCBoZWlnaHQgPSA4MDAsIDYwMApzY3Jl
+ZW4gPSBweWdhbWUuZGlzcGxheS5zZXRfbW9kZSgod2lkdGgsIGhlaWdodCkp
+CnB5Z2FtZS5kaXNwbGF5LnNldF9jYXB0aW9uKCJWdWxuZXJhYmxlIFBpbmcg
+UG9uZyIpCgojIEdhbWUgRWxlbWVudHMKYmFsbCA9IHB5Z2FtZS5SZWN0KHdp
+ZHRoIC8vIDIsIGhlaWdodCAvLyAyLCAxNSwgMTUpCmJhbGxfc3BlZWQgPSBb
+NCwgNF0KcGFkZGxlID0gcHlnYW1lLlJlY3Qod2lkdGggLSAyMCwgaGVpZ2h0
+IC8vIDIgLSA2MCwgMTAsIDEyMCkKCiMgTWFpbiBHYW1lIExvb3AKcnVubmlu
+ZyA9IFRydWUKY2xvY2sgPSBweWdhbWUudGltZS5DbG9jaygpCgp3aGlsZSBy
+dW5uaW5nOgogICAgZm9yIGV2ZW50IGluIHB5Z2FtZS5ldmVudC5nZXQoKToK
+ICAgICAgICBpZiBldmVudC50eXBlID09IHB5Z2FtZS5RVUlUOgogICAgICAg
+ICAgICBydW5uaW5nID0gRmFsc2UKCiAgICAjIFBhZGRsZSBNb3ZlbWVudAog
+ICAga2V5cyA9IHB5Z2FtZS5rZXkuZ2V0X3ByZXNzZWQoKQogICAgaWYga2V5
+c1tweWdhbWUuS19VUF0gYW5kIHBhZGRsZS50b3AgPiAwOgogICAgICAgIHBh
+ZGRsZS55IC09IHBhZGRsZV9zcGVlZAogICAgaWYga2V5c1tweWdhbWUuS19E
+T1dOXSBhbmQgcGFkZGxlLmJvdHRvbSA8IGhlaWdodDoKICAgICAgICBwYWRk
+bGUueSArPSBwYWRkbGVfc3BlZWQKCiAgICAjIEJhbGwgTW92ZW1lbnQKICAg
+IGJhbGwueCArPSBiYWxsX3NwZWVkWzBdCiAgICBiYWxsLnkgKz0gYmFsbF9z
+cGVlZFsxXQoKICAgIGlmIGJhbGwudG9wIDw9IDAgb3IgYmFsbC5ib3R0b20g
+Pj0gaGVpZ2h0OgogICAgICAgIGJhbGxfc3BlZWRbMV0gKj0gLTEKICAgIGlm
+IGJhbGwubGVmdCA8PSAwIG9yIGJhbGwucmlnaHQgPj0gd2lkdGg6CiAgICAg
+ICAgYmFsbF9zcGVlZFswXSAqPSAtMQogICAgaWYgYmFsbC5jb2xsaWRlcmVj
+dChwYWRkbGUpOgogICAgICAgIGJhbGxfc3BlZWRbMF0gKj0gLTEKCiAgICAj
+IERyYXdpbmcKICAgIHNjcmVlbi5maWxsKCgwLCAwLCAwKSkKICAgIHB5Z2Ft
+ZS5kcmF3LmVsbGlwc2Uoc2NyZWVuLCAoMjU1LCAyNTUsIDI1NSksIGJhbGwp
+CiAgICBweWdhbWUuZHJhdy5yZWN0KHNjcmVlbiwgKDI1NSwgMjU1LCAyNTUp
+LCBwYWRkbGUpCiAgICBweWdhbWUuZGlzcGxheS5mbGlwKCkKICAgIGNsb2Nr
+LnRpY2soNjApCgpweWdhbWUucXVpdCgp

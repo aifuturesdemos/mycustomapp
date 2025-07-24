@@ -1,22 +1,24 @@
 import re
-import pygame
 import sys
 import argparse
+import pygame
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Set paddle speed.")
+# --- Secure Input: Paddle speed from command-line ---
+def get_paddle_speed():
+    parser = argparse.ArgumentParser(description='Set paddle speed.')
     parser.add_argument('paddle_speed', type=int, help='Paddle speed (positive integer between 1 and 20)')
     args = parser.parse_args()
     if not (1 <= args.paddle_speed <= 20):
-        raise ValueError("Invalid input: Paddle speed must be a positive integer between 1 and 20.")
+        raise ValueError('Invalid input: Paddle speed must be a positive integer between 1 and 20.')
     return args.paddle_speed
 
 try:
-    paddle_speed = parse_args()  # Secure input parsing and validation
-except (IndexError, ValueError, SystemExit):
+    paddle_speed = get_paddle_speed()  # Secure input parsing and validation
+except (IndexError, ValueError, SystemExit) as e:
+    print(f'Error: {e}')
     paddle_speed = 5  # Fallback default
 
-# --- Pygame Setup ---
+# --- PyGame Setup ---
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))

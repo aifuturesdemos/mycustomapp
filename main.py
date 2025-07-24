@@ -1,7 +1,7 @@
 import re
-import argparse
 import pygame
 import sys
+import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Set paddle speed.")

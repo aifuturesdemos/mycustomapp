@@ -1,24 +1,21 @@
 import re
+import argparse
 import pygame
 import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-def get_validated_input():
-    try:
-        user_input = sys.argv[1]
-        # Strict validation: Only allow positive integers
-        if re.fullmatch(r'\d+', user_input):
-            paddle_speed = int(user_input)
-            if paddle_speed <= 0:
-                raise ValueError("Paddle speed must be a positive integer.")
-        else:
-            raise ValueError("Invalid input: Only positive integers are allowed.")
-    except IndexError:
-        paddle_speed = 5  # Fallback default
-    except ValueError as ve:
-        print(f"Input error: {ve}. Using default paddle speed 5.")
-        paddle_speed = 5
-    return paddle_speed
+# --- Vulnerable Input: Padle speed from command-line ---
+def parse_args():
+    parser = argparse.ArgumentParser(description="Set paddle speed.")
+    parser.add_argument('paddle_speed', type=int, help='Paddle speed (positive integer between 1 and 20)')
+    args = parser.parse_args()
+    if not (1 <= args.paddle_speed <= 20):
+        raise ValueError("Invalid input: Paddle speed must be a positive integer between 1 and 20.")
+    return args.paddle_speed
+
+try:
+    paddle_speed = parse_args()  # Secure input parsing and validation
+except (IndexError, ValueError, SystemExit):
+    paddle_speed = 5  # Fallback default
 
 # --- Pygame Setup ---
 pygame.init()
@@ -34,7 +31,6 @@ paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
 # Main Game Loop
 running = True
 clock = pygame.time.Clock()
-paddle_speed = get_validated_input()
 
 while running:
     for event in pygame.event.get():

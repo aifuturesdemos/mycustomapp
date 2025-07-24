@@ -3,7 +3,6 @@ import argparse
 import pygame
 import sys
 
-# --- Vulnerable Input: Padle speed from command-line ---
 def parse_args():
     parser = argparse.ArgumentParser(description="Set paddle speed.")
     parser.add_argument('paddle_speed', type=int, help='Paddle speed (positive integer between 1 and 20)')

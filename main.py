@@ -1,15 +1,1 @@
-import re
-import sys
-import argparse
-
-# Secure Input Handling: Use argparse and validate input strictly
-parser = argparse.ArgumentParser(description='Paddle speed from command-line')
-parser.add_argument('speed', type=int, help='Paddle speed (positive integer)')
-args = parser.parse_args()
-
-if args.speed <= 0:
-    raise ValueError("Invalid input: Only positive integers are allowed.")
-else:
-    paddle_speed = args.speed  # Validated input
-
-# ... rest of the game logic remains unchanged ...
+aW1wb3J0IHJlCmltcG9ydCBzeXMKaW1wb3J0IGFyZ3BhcnNlCgojIFNlY3VyZSBJbnB1dCBIYW5kbGluZzogVXNlIGFyZ3BhcnNlIGFuZCB2YWxpZGF0ZSBpbnB1dCBzdHJpY3RseQpwYXJzZXIgPSBhcmdwYXJzZS5Bcmd1bWVudFBhcnNlcigKICAgIGRlc2NyaXB0aW9uPSdQYWRkbGUgc3BlZWQgZnJvbSBjb21tYW5kLWxpbmUnKQp0cnk6CiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCdzcGVlZCcsIHR5cGU9aW50LCBoZWxwPSdQYWRkbGUgc3BlZWQgKHBvc2l0aXZlIGludGVnZXIpJykKICAgIGFyZ3MgPSBwYXJzZXIucGFyc2VfYXJncygpCiAgICBpZiBhcmdzLnNwZWVkIDw9IDA6CiAgICAgICAgcmFpc2UgVmFsdWVFcnJvcigiSW52YWxpZCBpbnB1dDogT25seSBwb3NpdGl2ZSBpbnRlZ2VycyBhcmUgYWxsb3dlZC4iKQogICAgcGFkZGxlX3NwZWVkID0gYXJncy5zcGVlZCAgIyBWYWxpZGF0ZWQgaW5wdXQKZXhjZXB0IChFeGNlcHRpb24gYXMgZSk6CiAgICBwcmludChmIkVycm9yOiB7ZX0iKQogICAgc3lzLmV4aXQoMSkKCiMgLi4uIHJlc3Qgb2YgdGhlIGdhbWUgbG9naWMgcmVtYWlucyB1bmNoYW5nZWQgLi4uCg==

@@ -5,7 +5,7 @@ import html
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
-    # Stricter validation: Only allow positive integers between 1 and 20
+    # Strict validation: Only allow positive integers between 1 and 20
     if re.match(r'^\d+$', user_input):
         paddle_speed = int(user_input)
         if paddle_speed < 1 or paddle_speed > 20:

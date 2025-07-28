@@ -1,15 +1,23 @@
 import re
 import pygame
 import sys
+import logging
+
+# Set up logging for invalid input attempts
+logging.basicConfig(filename='input_validation.log', level=logging.INFO)
 
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
+    # Strict validation: Only allow positive integers between 1 and 20
     if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+        paddle_speed = int(user_input)
+        if not (1 <= paddle_speed <= 20):
+            raise ValueError("Input out of allowed range (1-20).")
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
+        raise ValueError("Invalid input: Only positive integers between 1 and 20 are allowed.")
+except (IndexError, ValueError) as e:
+    logging.info(f"Invalid input attempt: {sys.argv[1:] if len(sys.argv) > 1 else 'None'} | Error: {e}")
     paddle_speed = 5  # Fallback default
 
 # --- Pygame Setup ---

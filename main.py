@@ -17,9 +17,8 @@ try:
     else:
         raise ValueError("Invalid input: Only positive integers between 1 and 20 are allowed.")
 except (IndexError, ValueError) as e:
-    logging.info(f"Invalid input attempt: {sys.argv[1:] if len(sys.argv) > 1 else 'None'} | Error: {e}")
+    logging.info(f"Invalid input attempt: {sys.argv[1] if len(sys.argv) > 1 else 'None'} | Error: {e}")
     paddle_speed = 5  # Fallback default
-
 # --- Pygame Setup ---
 pygame.init()
 width, height = 800, 600

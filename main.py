@@ -1,14 +1,20 @@
 import re
 import pygame
 import sys
+import logging
+
+# Set up logging for invalid input attempts
+logging.basicConfig(filename='security.log', level=logging.WARNING, format='%(asctime)s %(levelname)s:%(message)s')
 
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
+    # Stricter validation: Only allow positive integers between 1 and 20
+    if re.fullmatch(r'^[1-9]$|^1[0-9]$|^20$', user_input):
         paddle_speed = int(user_input)  # Validated input
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+        logging.warning(f"Invalid input attempt: {user_input}")
+        raise ValueError("Invalid input: Only positive integers between 1 and 20 are allowed.")
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 

@@ -5,10 +5,11 @@ import sys
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
+    # Sanitize input: Only allow up to 4 digits
+    if re.match(r'^\d{1,4}$', user_input):
         paddle_speed = int(user_input)  # Validated input
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+        raise ValueError("Invalid input: Only positive integers up to 4 digits are allowed.")
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 
@@ -49,7 +50,6 @@ while running:
         ball_speed[0] *= -1
     if ball.colliderect(paddle):
         ball_speed[0] *= -1
-
     # Drawing
     screen.fill((0, 0, 0))
     pygame.draw.ellipse(screen, (255, 255, 255), ball)

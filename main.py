@@ -1,18 +1,25 @@
 import re
-import pygame
 import sys
+import shlex
 
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+    # Use shlex to safely parse command-line arguments
+    args = shlex.split(' '.join(sys.argv[1:]))
+    if len(args) > 0:
+        user_input = args[0]
+        # Validate input: only allow positive integers
+        if re.match(r'^\d+$', user_input):
+            paddle_speed = int(user_input)  # Validated input
+        else:
+            raise ValueError("Invalid input: Only positive integers are allowed.")
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+        paddle_speed = 5  # Fallback default
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 
 # --- Pygame Setup ---
+import pygame
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))

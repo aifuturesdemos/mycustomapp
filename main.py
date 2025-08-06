@@ -1,22 +1,39 @@
 import re
-import pygame
 import sys
+import logging
+
+# Set up logging
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
 # --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+def get_validated_input():
+    try:
+        if len(sys.argv) < 2:
+            raise ValueError("No input provided. Please provide paddle speed as a positive integer.")
+        user_input = sys.argv[1]
+        # Sanitize input: Only allow positive integers
+        if not re.fullmatch(r'\d+', user_input):
+            raise ValueError("Invalid input: Only positive integers are allowed.")
+        paddle_speed = int(user_input)
+        if paddle_speed <= 0:
+            raise ValueError("Paddle speed must be a positive integer.")
+        return paddle_speed
+    except (IndexError, ValueError) as e:
+        logging.error(f"Input error: {e}")
+        print(f"Error: {e}")
+        # Default fallback value
+        return 5
+    except Exception as e:
+        logging.exception("Unexpected error occurred while processing input.")
+        print("An unexpected error occurred. Please check the logs.")
+        return 5
 
 # --- Pygame Setup ---
+import pygame
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+pygame.display.set_caption("Vulnerable Ping Pong (Secured)")
 
 # Game Elements
 ball = pygame.Rect(width // 2, height // 2, 15, 15)
@@ -26,6 +43,7 @@ paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
 # Main Game Loop
 running = True
 clock = pygame.time.Clock()
+paddle_speed = get_validated_input()
 
 while running:
     for event in pygame.event.get():

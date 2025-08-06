@@ -5,6 +5,9 @@ import sys
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
+    # Input length validation: limit to 6 digits
+    if len(user_input) > 6:
+        raise ValueError("Input too long: Maximum 6 digits allowed.")
     if re.match(r'^\d+$', user_input):
         paddle_speed = int(user_input)  # Validated input
     else:

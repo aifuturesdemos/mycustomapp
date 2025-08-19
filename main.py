@@ -5,6 +5,7 @@ import sys
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
+    # Sanitize input: Only allow positive integers
     if re.match(r'^\d+$', user_input):
         paddle_speed = int(user_input)  # Validated input
     else:

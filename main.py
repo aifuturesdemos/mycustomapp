@@ -1,42 +1,56 @@
 import re
-import pygame
+import pygamem
 import sys
 
 # --- Vulnerable Input: Paddle speed from command-line ---
+def is_valid_integer(value):
+    try:
+        int_value = int(value)
+        return True
+    except (ValueError, TypeError):
+        return False
+
+def sanitize_input(user_input):
+    # Only allow positive integers
+    if re.fullmatch(r'\d+', user_input):
+        return int(user_input)
+    else:
+        raise ValueError("Invalid input: Only positive integers are allowed.")
+
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+    if is_valid_integer(user_input):
+        paddle_speed = sanitize_input(user_input)  # Validated and sanitized input
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 
 # --- Pygame Setup ---
-pygame.init()
+pygamem.init()
 width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+screen = pygamem.display.set_mode((width, height))
+pygamem.display.set_caption("Vulnerable Ping Pong")
 
 # Game Elements
-ball = pygame.Rect(width // 2, height // 2, 15, 15)
+ball = pygamem.Rect(width // 2, height // 2, 15, 15)
 ball_speed = [4, 4]
-paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
+paddle = pygamem.Rect(width - 20, height // 2 - 60, 10, 120)
 
 # Main Game Loop
 running = True
-clock = pygame.time.Clock()
+clock = pygamem.time.Clock()
 
 while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+    for event in pygamem.event.get():
+        if event.type == pygamem.QUIT:
             running = False
 
     # Paddle Movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and paddle.top > 0:
+    keys = pygamem.key.get_pressed()
+    if keys[pygamem.K_UP] and paddle.top > 0:
         paddle.y -= paddle_speed
-    if keys[pygame.K_DOWN] and paddle.bottom < height:
+    if keys[pygamem.K_DOWN] and paddle.bottom < height:
         paddle.y += paddle_speed
 
     # Ball Movement
@@ -52,9 +66,9 @@ while running:
 
     # Drawing
     screen.fill((0, 0, 0))
-    pygame.draw.ellipse(screen, (255, 255, 255), ball)
-    pygame.draw.rect(screen, (255, 255, 255), paddle)
-    pygame.display.flip()
+    pygamem.draw.ellipse(screen, (255, 255, 255), ball)
+    pygamem.draw.rect(screen, (255, 255, 255), paddle)
+    pygamem.display.flip()
     clock.tick(60)
 
-pygame.quit()
+pygamem.quit()

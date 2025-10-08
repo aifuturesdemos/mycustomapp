@@ -1,14 +1,20 @@
 import re
 import pygame
 import sys
+import logging
+
+# Set up logging for suspicious activity
+logging.basicConfig(filename='security.log', level=logging.INFO)
 
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
+    # Strict input validation: Only allow positive integers
+    if re.fullmatch(r'^[1-9]\d{0,2}$', user_input):
         paddle_speed = int(user_input)  # Validated input
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+        logging.info(f"Suspicious input detected: {user_input}")
+        raise ValueError("Invalid input: Only positive integers up to 999 are allowed.")
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 

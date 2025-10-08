@@ -1,7 +1,7 @@
 import re
-import argparse
-import pygame
 import sys
+import pygame
+import argparse
 
 # --- Secure Input Handling ---
 def get_paddle_speed():

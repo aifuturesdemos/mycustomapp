@@ -1,18 +1,27 @@
 import re
-import pygame
 import sys
 
 # --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+def get_valid_paddle_speed():
+    try:
+        if len(sys.argv) < 2:
+            raise ValueError("Missing input: Paddle speed argument is required.")
+        user_input = sys.argv[1]
+        # Only allow positive integers
+        if not re.match(r'^\d+$', user_input):
+            raise ValueError("Invalid input: Only positive integers are allowed.")
+        paddle_speed = int(user_input)
+        if paddle_speed <= 0:
+            raise ValueError("Invalid input: Paddle speed must be greater than zero.")
+        return paddle_speed
+    except (IndexError, ValueError) as e:
+        print(f"Input error: {e}. Using default paddle speed of 5.")
+        return 5  # Fallback default
+
+paddle_speed = get_valid_paddle_speed()
 
 # --- Pygame Setup ---
+import pygame
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
@@ -31,30 +40,25 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
     # Paddle Movement
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP] and paddle.top > 0:
         paddle.y -= paddle_speed
     if keys[pygame.K_DOWN] and paddle.bottom < height:
         paddle.y += paddle_speed
-
     # Ball Movement
     ball.x += ball_speed[0]
     ball.y += ball_speed[1]
-
     if ball.top <= 0 or ball.bottom >= height:
         ball_speed[1] *= -1
     if ball.left <= 0 or ball.right >= width:
         ball_speed[0] *= -1
     if ball.colliderect(paddle):
         ball_speed[0] *= -1
-
     # Drawing
     screen.fill((0, 0, 0))
     pygame.draw.ellipse(screen, (255, 255, 255), ball)
     pygame.draw.rect(screen, (255, 255, 255), paddle)
     pygame.display.flip()
     clock.tick(60)
-
 pygame.quit()

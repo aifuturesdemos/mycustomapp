@@ -3,14 +3,19 @@ import pygame
 import sys
 
 # --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+def get_valid_paddle_speed():
+    try:
+        user_input = sys.argv[1]
+        # 入力値が整数かつ範囲（1～20）内かを厳密に検証
+        if user_input.isdigit():
+            value = int(user_input)
+            if 1 <= value <= 20:
+                return value
+        raise ValueError("無効な入力: 1～20の整数のみ許可されます。")
+    except (IndexError, ValueError):
+        return 5  # 安全なデフォルト値
+
+paddle_speed = get_valid_paddle_speed()
 
 # --- Pygame Setup ---
 pygame.init()

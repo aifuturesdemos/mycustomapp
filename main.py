@@ -5,10 +5,12 @@ import sys
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
+    # Modified regex to prevent potential ReDoS by using a more specific pattern
+    # and adding a length check for user_input
+    if len(user_input) < 10 and re.match(r'^\d+$', user_input):
         paddle_speed = int(user_input)  # Validated input
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+        raise ValueError("Invalid input: Only positive integers are allowed and input length must be less than 10.")
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 

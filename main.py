@@ -4,13 +4,16 @@ import sys
 
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+    # Ensure sys.argv[1] exists and is a valid integer
+    if len(sys.argv) > 1 and sys.argv[1].isdigit():
+        paddle_speed = int(sys.argv[1])
+        # Optional: Add a reasonable range check for paddle_speed
+        if not (1 <= paddle_speed <= 20): # Example range
+            paddle_speed = 5 # Fallback to default if out of range
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+        paddle_speed = 5  # Fallback default if no argument or invalid format
+except ValueError:
+    paddle_speed = 5  # Fallback default for conversion errors
 
 # --- Pygame Setup ---
 pygame.init()

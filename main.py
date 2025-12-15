@@ -3,10 +3,13 @@ import pygame
 import sys
 
 # --- Vulnerable Input: Paddle speed from command-line ---
+MAX_PADDLE_SPEED = 20  # Upper bound for paddle speed
 try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+        paddle_speed = int(user_input)
+        if paddle_speed > MAX_PADDLE_SPEED:
+            paddle_speed = MAX_PADDLE_SPEED  # Enforce upper bound
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):

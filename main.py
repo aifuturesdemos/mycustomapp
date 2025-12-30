@@ -2,15 +2,23 @@ import re
 import pygame
 import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
+# --- Secure Input: Paddle speed from command-line ---
+MIN_PADDLE_SPEED = 1
+MAX_PADDLE_SPEED = 20
+DEFAULT_PADDLE_SPEED = 5
+
 try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+        paddle_speed = int(user_input)
+        if not (MIN_PADDLE_SPEED <= paddle_speed <= MAX_PADDLE_SPEED):
+            print(f"Invalid input: Paddle speed must be between {MIN_PADDLE_SPEED} and {MAX_PADDLE_SPEED}. Using default value {DEFAULT_PADDLE_SPEED}.")
+            paddle_speed = DEFAULT_PADDLE_SPEED
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+        print(f"Invalid input: Only positive integers are allowed. Using default value {DEFAULT_PADDLE_SPEED}.")
+        paddle_speed = DEFAULT_PADDLE_SPEED
 except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+    paddle_speed = DEFAULT_PADDLE_SPEED  # Fallback default
 
 # --- Pygame Setup ---
 pygame.init()

@@ -1,6 +1,12 @@
+import os
 import re
 import pygame
 import sys
+
+# --- Secure Secret Key Management ---
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise RuntimeError('SECRET_KEY environment variable not set. Please set it before running the application.')
 
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:

@@ -1,6 +1,6 @@
 import re
 import argparse
-import pygamem
+import pygame
 import sys
 
 # --- Secure Input Handling ---
@@ -8,10 +8,10 @@ def get_paddle_speed():
     parser = argparse.ArgumentParser(description='Set paddle speed securely.')
     parser.add_argument('--paddle_speed', type=int, nargs="?", default=5, help='Paddle speed (positive integer only)')
     args = parser.parse_args()
-    if args.paddle_speed > 0:
+    if 1 <= args.paddle_speed <= 20:
         return args.paddle_speed
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+        raise ValueError("Invalid input: Paddle speed must be between 1 and 20.")
 
 try:
     paddle_speed = get_paddle_speed()
@@ -20,30 +20,30 @@ except Exception as e:
     paddle_speed = 5
 
 # --- Pygame Setup ---
-pygamem.init()
+pygame.init()
 width, height = 800, 600
-screen = pygamem.display.set_mode((width, height))
-pygamem.display.set_caption("Vulnerable Ping Pong")
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Vulnerable Ping Pong")
 
 # Game Elements
-ball = pygamem.Rect(width // 2, height // 2, 15, 15)
+ball = pygame.Rect(width // 2, height // 2, 15, 15)
 ball_speed = [4, 4]
-paddle = pygamem.Rect(width - 20, height // 2 - 60, 10, 120)
+paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
 
 # Main Game Loop
 running = True
-clock = pygamem.time.Clock()
+clock = pygame.time.Clock()
 
 while running:
-    for event in pygamem.event.get():
-        if event.type == pygamem.QUIT:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
             running = False
 
     # Paddle Movement
-    keys = pygamem.key.get_pressed()
-    if keys[pygamem.K_UP] and paddle.top > 0:
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_UP] and paddle.top > 0:
         paddle.y -= paddle_speed
-    if keys[pygamem.K_DOWN] and paddle.bottom < height:
+    if keys[pygame.K_DOWN] and paddle.bottom < height:
         paddle.y += paddle_speed
 
     # Ball Movement
@@ -59,9 +59,9 @@ while running:
 
     # Drawing
     screen.fill((0, 0, 0))
-    pygamem.draw.ellipse(screen, (255, 255, 255), ball)
-    pygamem.draw.rect(screen, (255, 255, 255), paddle)
-    pygamem.display.flip()
+    pygame.draw.ellipse(screen, (255, 255, 255), ball)
+    pygame.draw.rect(screen, (255, 255, 255), paddle)
+    pygame.display.flip()
     clock.tick(60)
 
-pygamem.quit()
+pygame.quit()

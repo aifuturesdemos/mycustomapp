@@ -1,8 +1,9 @@
 import re
 import pygame
 import sys
+import subprocess
 
-# --- Vulnerable Input: Paddle speed from command-line ---
+# --- Secure Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):
@@ -11,6 +12,13 @@ try:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
+
+# Example of secure command execution (if needed)
+def safe_ping(host):
+    if re.match(r'^[a-zA-Z0-9.-]+$', host):
+        subprocess.run(["ping", host])
+    else:
+        raise ValueError("Invalid host name.")
 
 # --- Pygame Setup ---
 pygame.init()

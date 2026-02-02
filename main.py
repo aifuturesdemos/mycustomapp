@@ -1,60 +1,43 @@
-import re
-import pygame
-import sys
+# main.py (Security-Enhanced)
+import os
+import json
+import logging
+from marshmallow import Schema, fields, ValidationError
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# --- Pygame Setup ---
-pygame.init()
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+# Input validation schema
+class InputSchema(Schema):
+    username = fields.Str(required=True)
+    age = fields.Int(required=True)
 
-# Game Elements
-ball = pygame.Rect(width // 2, height // 2, 15, 15)
-ball_speed = [4, 4]
-paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
+# Secure secret management
+SECRET_KEY = os.environ.get('MYCUSTOMAPP_SECRET_KEY')
+if not SECRET_KEY:
+    logger.warning('SECRET_KEY is not set in environment variables.')
 
-# Main Game Loop
-running = True
-clock = pygame.time.Clock()
+def process_input(data):
+    try:
+        # Validate input
+        schema = InputSchema()
+        validated = schema.load(data)
+        logger.info(f"Validated input: {validated}")
+        # Safe deserialization
+        json_data = json.dumps(validated)
+        logger.info(f"Serialized data: {json_data}")
+        # Secure function usage (no eval/exec/os.system)
+        # ... (application logic here)
+        return True
+    except ValidationError as ve:
+        logger.error(f"Input validation error: {ve.messages}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        return False
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    # Paddle Movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and paddle.top > 0:
-        paddle.y -= paddle_speed
-    if keys[pygame.K_DOWN] and paddle.bottom < height:
-        paddle.y += paddle_speed
-
-    # Ball Movement
-    ball.x += ball_speed[0]
-    ball.y += ball_speed[1]
-
-    if ball.top <= 0 or ball.bottom >= height:
-        ball_speed[1] *= -1
-    if ball.left <= 0 or ball.right >= width:
-        ball_speed[0] *= -1
-    if ball.colliderect(paddle):
-        ball_speed[0] *= -1
-
-    # Drawing
-    screen.fill((0, 0, 0))
-    pygame.draw.ellipse(screen, (255, 255, 255), ball)
-    pygame.draw.rect(screen, (255, 255, 255), paddle)
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()
+if __name__ == "__main__":
+    # Example input
+    user_input = {"username": "alice", "age": 30}
+    process_input(user_input)

@@ -1,19 +1,17 @@
-import argparse
+import re
 import pygame
 import sys
 
 # --- Secure Input: Paddle speed from command-line ---
-def get_paddle_speed():
-    parser = argparse.ArgumentParser(description="Set paddle speed for Ping Pong game.")
-    parser.add_argument('--paddle_speed', type=int, default=5, help='Paddle speed (positive integer, max 20)')
-    args = parser.parse_args()
-    if args.paddle_speed < 1 or args.paddle_speed > 20:
-        raise ValueError("Paddle speed must be between 1 and 20.")
-    return args.paddle_speed
-
 try:
-    paddle_speed = get_paddle_speed()
-except Exception:
+    user_input = sys.argv[1]
+    if re.match(r'^\d+$', user_input):
+        paddle_speed = int(user_input)
+        if not (1 <= paddle_speed <= 20):
+            raise ValueError("Input out of range: Paddle speed must be between 1 and 20.")
+    else:
+        raise ValueError("Invalid input: Only positive integers are allowed.")
+except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 
 # --- Pygame Setup ---

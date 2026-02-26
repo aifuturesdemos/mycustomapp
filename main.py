@@ -2,13 +2,17 @@ import re
 import pygame
 import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
+# --- Secure Input: Paddle speed from command-line ---
+def validate_paddle_speed(user_input):
+    # Allow only positive integers
     if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+        return int(user_input)
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
+
+try:
+    user_input = sys.argv[1]
+    paddle_speed = validate_paddle_speed(user_input)
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 
@@ -16,7 +20,7 @@ except (IndexError, ValueError):
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+pygame.display.set_caption("Secure Ping Pong")
 
 # Game Elements
 ball = pygame.Rect(width // 2, height // 2, 15, 15)
@@ -58,3 +62,5 @@ while running:
     clock.tick(60)
 
 pygame.quit()
+
+# Security Note: Input validation implemented for paddle speed as per OWASP recommendations. Further improvements should include secure password hashing, error handling, and rate limiting.

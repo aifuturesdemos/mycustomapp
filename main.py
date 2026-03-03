@@ -1,22 +1,14 @@
-import re
 import pygame
 import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+# --- Secure Paddle Speed: Set to safe default, only adjustable in-game ---
+paddle_speed = 5  # Safe default value; no command-line input
 
 # --- Pygame Setup ---
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+pygame.display.set_caption("Secure Ping Pong")
 
 # Game Elements
 ball = pygame.Rect(width // 2, height // 2, 15, 15)
@@ -31,6 +23,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        # Optional: Allow paddle speed adjustment via in-game keys
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_PLUS or event.key == pygame.K_KP_PLUS:
+                paddle_speed = min(paddle_speed + 1, 20)
+            if event.key == pygame.K_MINUS or event.key == pygame.K_KP_MINUS:
+                paddle_speed = max(paddle_speed - 1, 1)
 
     # Paddle Movement
     keys = pygame.key.get_pressed()

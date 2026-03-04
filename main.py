@@ -1,14 +1,34 @@
+import re
 import pygame
 import sys
 
-# --- Secure Paddle Speed: Set to safe default, only adjustable in-game ---
-paddle_speed = 5  # Safe default value; no command-line input
+# --- Secure Input: Paddle speed from command-line with strict bounds ---
+MIN_PADDLE_SPEED = 1
+MAX_PADDLE_SPEED = 20
+DEFAULT_PADDLE_SPEED = 5
+
+def get_paddle_speed():
+    try:
+        user_input = sys.argv[1]
+        if re.match(r'^\d+$', user_input):
+            value = int(user_input)
+            if MIN_PADDLE_SPEED <= value <= MAX_PADDLE_SPEED:
+                return value
+            else:
+                print(f"Input out of bounds. Using default paddle speed: {DEFAULT_PADDLE_SPEED}")
+        else:
+            print(f"Invalid input format. Using default paddle speed: {DEFAULT_PADDLE_SPEED}")
+    except (IndexError, ValueError):
+        pass
+    return DEFAULT_PADDLE_SPEED
+
+paddle_speed = get_paddle_speed()
 
 # --- Pygame Setup ---
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Secure Ping Pong")
+pygame.display.set_caption("Vulnerable Ping Pong")
 
 # Game Elements
 ball = pygame.Rect(width // 2, height // 2, 15, 15)
@@ -23,12 +43,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # Optional: Allow paddle speed adjustment via in-game keys
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_PLUS or event.key == pygame.K_KP_PLUS:
-                paddle_speed = min(paddle_speed + 1, 20)
-            if event.key == pygame.K_MINUS or event.key == pygame.K_KP_MINUS:
-                paddle_speed = max(paddle_speed - 1, 1)
 
     # Paddle Movement
     keys = pygame.key.get_pressed()

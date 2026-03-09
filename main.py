@@ -1,6 +1,7 @@
 import re
 import pygame
 import sys
+import sqlite3
 
 # --- Secure Input: Paddle speed from command-line ---
 MIN_PADDLE_SPEED = 1
@@ -15,6 +16,16 @@ try:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
+
+# --- Example of secure SQL query (fix for SQL injection) ---
+def get_player_score(player_id):
+    conn = sqlite3.connect('game.db')
+    cursor = conn.cursor()
+    # Use parameterized query to prevent SQL injection
+    cursor.execute("SELECT score FROM players WHERE id = ?", (player_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result else 0
 
 # --- Pygame Setup ---
 pygame.init()

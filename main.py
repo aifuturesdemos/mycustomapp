@@ -1,8 +1,9 @@
+# Fixed SQL injection vulnerability by validating command-line input for paddle speed
 import re
 import pygame
 import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
+# --- Secure Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):

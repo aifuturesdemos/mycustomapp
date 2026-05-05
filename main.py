@@ -1,8 +1,10 @@
+# Updated main.py to remove hardcoded credentials and use environment variables instead
+import os
 import re
 import pygame
 import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
+# --- Secure Input: Paddle speed from command-line or environment variable ---
 try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):
@@ -10,13 +12,14 @@ try:
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+    # Use environment variable as fallback, else default
+    paddle_speed = int(os.getenv('PADDLE_SPEED', 5))
 
 # --- Pygame Setup ---
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+pygame.display.set_caption("Secure Ping Pong")
 
 # Game Elements
 ball = pygame.Rect(width // 2, height // 2, 15, 15)

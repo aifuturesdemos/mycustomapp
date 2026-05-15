@@ -1,8 +1,9 @@
 import re
 import pygame
 import sys
+import os
 
-# --- Vulnerable Input: Paddle speed from command-line ---
+# --- Secure Paddle Speed Input ---
 try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):
@@ -10,7 +11,8 @@ try:
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+    # Load default paddle speed from environment variable for security
+    paddle_speed = int(os.environ.get('PADDLE_SPEED', 5))
 
 # --- Pygame Setup ---
 pygame.init()

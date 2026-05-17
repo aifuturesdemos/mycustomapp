@@ -2,13 +2,18 @@ import re
 import pygame
 import sys
 
+def validate_user_input(user_input):
+    # Only allow positive integers between 1 and 100
+    if re.fullmatch(r'\d+', user_input):
+        value = int(user_input)
+        if 1 <= value <= 100:
+            return value
+    raise ValueError("Invalid input: Only positive integers between 1 and 100 are allowed.")
+
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+    paddle_speed = validate_user_input(user_input)  # Strictly validated input
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 

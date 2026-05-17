@@ -1,22 +1,25 @@
-import re
+import argparse
 import pygame
 import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+# --- Secure Input: Paddle speed from command-line ---
+def get_paddle_speed():
+    parser = argparse.ArgumentParser(description='Ping Pong Game')
+    parser.add_argument('paddle_speed', nargs='?', type=int, default=5, help='Paddle speed (positive integer between 1 and 20)')
+    args = parser.parse_args()
+    if 1 <= args.paddle_speed <= 20:
+        return args.paddle_speed
     else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+        print('Invalid input: Paddle speed must be a positive integer between 1 and 20. Using default value 5.')
+        return 5
+
+paddle_speed = get_paddle_speed()
 
 # --- Pygame Setup ---
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+pygame.display.set_caption("Secure Ping Pong")
 
 # Game Elements
 ball = pygame.Rect(width // 2, height // 2, 15, 15)

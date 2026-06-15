@@ -7,6 +7,8 @@ try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):
         paddle_speed = int(user_input)  # Validated input
+        MAX_PADDLE_SPEED = 20
+        paddle_speed = min(paddle_speed, MAX_PADDLE_SPEED)  # Cap to prevent DoS
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):

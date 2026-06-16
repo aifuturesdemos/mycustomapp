@@ -1,16 +1,23 @@
-import re
+import argparse
 import pygame
 import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+# --- Secure Input: Paddle speed from command-line using argparse ---
+def get_paddle_speed():
+    parser = argparse.ArgumentParser(description="Set paddle speed for the game.")
+    parser.add_argument(
+        "--paddle_speed",
+        type=int,
+        default=5,
+        help="Paddle speed (positive integer between 1 and 20)",
+    )
+    args = parser.parse_args()
+    if args.paddle_speed < 1 or args.paddle_speed > 20:
+        print("Invalid input: Paddle speed must be between 1 and 20. Using default (5).")
+        return 5
+    return args.paddle_speed
+
+paddle_speed = get_paddle_speed()
 
 # --- Pygame Setup ---
 pygame.init()
@@ -58,3 +65,8 @@ while running:
     clock.tick(60)
 
 pygame.quit()
+
+# Change log:
+# - Replaced manual input parsing and regex with argparse for secure input handling.
+# - Enforced paddle speed to be a positive integer between 1 and 20.
+# - Added documentation for maintainers.

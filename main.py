@@ -1,29 +1,22 @@
-import re
+import argparse
 import pygame
-import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+parser = argparse.ArgumentParser()
+parser.add_argument('--paddle_speed', type=int, default=5, help='Paddle speed (positive integer)')
+args = parser.parse_args()
+paddle_speed = args.paddle_speed
+if paddle_speed <= 0:
+    raise ValueError('Paddle speed must be a positive integer.')
 
-# --- Pygame Setup ---
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+pygame.display.set_caption("Secure Ping Pong")
 
-# Game Elements
 ball = pygame.Rect(width // 2, height // 2, 15, 15)
 ball_speed = [4, 4]
 paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
 
-# Main Game Loop
 running = True
 clock = pygame.time.Clock()
 
@@ -32,14 +25,12 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Paddle Movement
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP] and paddle.top > 0:
         paddle.y -= paddle_speed
     if keys[pygame.K_DOWN] and paddle.bottom < height:
         paddle.y += paddle_speed
 
-    # Ball Movement
     ball.x += ball_speed[0]
     ball.y += ball_speed[1]
 
@@ -50,7 +41,6 @@ while running:
     if ball.colliderect(paddle):
         ball_speed[0] *= -1
 
-    # Drawing
     screen.fill((0, 0, 0))
     pygame.draw.ellipse(screen, (255, 255, 255), ball)
     pygame.draw.rect(screen, (255, 255, 255), paddle)

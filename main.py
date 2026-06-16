@@ -5,7 +5,10 @@ import sys
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
+    # Validate input: must be a positive integer and not too large
     if re.match(r'^\d+$', user_input):
+        if len(user_input) > 6 or int(user_input) > 100000:
+            raise ValueError("Input too large: Maximum 6 digits and value up to 100000 allowed.")
         paddle_speed = int(user_input)  # Validated input
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")

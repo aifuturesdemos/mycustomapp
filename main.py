@@ -2,11 +2,15 @@ import re
 import pygame
 import sys
 
-# --- Vulnerable Input: Paddle speed from command-line ---
+# --- Secure Input: Paddle speed from command-line ---
+MAX_PADDLE_SPEED = 20
+MIN_PADDLE_SPEED = 1
 try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+        paddle_speed = int(user_input)
+        if paddle_speed < MIN_PADDLE_SPEED or paddle_speed > MAX_PADDLE_SPEED:
+            raise ValueError(f"Paddle speed must be between {MIN_PADDLE_SPEED} and {MAX_PADDLE_SPEED}.")
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):

@@ -3,16 +3,22 @@ import pygame
 import sys
 
 # --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+def get_validated_input():
+    try:
+        user_input = sys.argv[1]
+        # Stricter validation: only allow positive integers, max 3 digits
+        if re.fullmatch(r'\d{1,3}', user_input):
+            paddle_speed = int(user_input)
+            if not (1 <= paddle_speed <= 999):
+                raise ValueError("Input out of allowed range (1-999).")
+        else:
+            raise ValueError("Invalid input: Only positive integers up to 3 digits are allowed.")
+    except (IndexError, ValueError):
+        paddle_speed = 5  # Fallback default
+    return paddle_speed
 
 # --- Pygame Setup ---
+paddle_speed = get_validated_input()
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))

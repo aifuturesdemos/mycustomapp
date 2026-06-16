@@ -1,16 +1,26 @@
 import re
 import pygame
 import sys
+import logging
+
+# Set up logging for security events
+logging.basicConfig(filename='security.log', level=logging.WARNING, format='%(asctime)s %(levelname)s:%(message)s')
 
 # --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+def get_valid_paddle_speed():
+    try:
+        user_input = sys.argv[1]
+        # Strict input validation: only allow positive integers
+        if re.fullmatch(r'\d+', user_input):
+            paddle_speed = int(user_input)
+            if paddle_speed <= 0 or paddle_speed > 100:
+                raise ValueError("Paddle speed must be between 1 and 100.")
+            return paddle_speed
+        else:
+            raise ValueError("Invalid input: Only positive integers between 1 and 100 are allowed.")
+    except (IndexError, ValueError) as e:
+        logging.warning(f"Invalid paddle speed input: {e}")
+        return 5  # Fallback default
 
 # --- Pygame Setup ---
 pygame.init()
@@ -26,6 +36,7 @@ paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
 # Main Game Loop
 running = True
 clock = pygame.time.Clock()
+paddle_speed = get_valid_paddle_speed()
 
 while running:
     for event in pygame.event.get():

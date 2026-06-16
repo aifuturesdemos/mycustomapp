@@ -1,6 +1,19 @@
-import re
+# Updated main.py to remove hardcoded credentials and use environment variables for database access
+import os
 import pygame
 import sys
+import re
+
+def get_db_connection():
+    db_host = os.environ.get('DB_HOST')
+    db_user = os.environ.get('DB_USER')
+    db_password = os.environ.get('DB_PASSWORD')
+    db_name = os.environ.get('DB_NAME')
+    if not all([db_host, db_user, db_password, db_name]):
+        raise ValueError('Database credentials are not fully set in environment variables.')
+    # Example: connect to your database here using the above variables
+    # conn = psycopg2.connect(host=db_host, user=db_user, password=db_password, dbname=db_name)
+    # return conn
 
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:

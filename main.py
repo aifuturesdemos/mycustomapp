@@ -1,18 +1,25 @@
 import re
-import pygame
 import sys
+
+def is_valid_positive_integer(value):
+    try:
+        int_value = int(value)
+        if int_value > 0:
+            return int_value
+        else:
+            raise ValueError("Input must be a positive integer.")
+    except (ValueError, TypeError):
+        raise ValueError("Invalid input: Only positive integers are allowed.")
 
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
+    paddle_speed = is_valid_positive_integer(user_input)  # Strictly validated input
 except (IndexError, ValueError):
     paddle_speed = 5  # Fallback default
 
 # --- Pygame Setup ---
+import pygame
 pygame.init()
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))

@@ -1,60 +1,33 @@
 import re
-import pygame
 import sys
+import logging
+import argparse
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
+# Set up logging for invalid input attempts
+logging.basicConfig(filename='main.log', level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
+
+def validate_input(user_input):
+    # Enforce length and type checks
+    if not isinstance(user_input, str):
+        raise ValueError("Input must be a string.")
+    if len(user_input) > 10:
+        logging.warning(f"Input too long: {user_input}")
+        raise ValueError("Input is too long. Maximum 10 digits allowed.")
+    if not re.fullmatch(r'\d+', user_input):
+        logging.warning(f"Invalid input: {user_input}")
         raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+    return int(user_input)
 
-# --- Pygame Setup ---
-pygame.init()
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+def main():
+    parser = argparse.ArgumentParser(description="Process a positive integer input.")
+    parser.add_argument('number', type=str, help='A positive integer (max 10 digits)')
+    args = parser.parse_args()
+    try:
+        paddle_speed = validate_input(args.number)
+    except (ValueError, IndexError) as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    # ... rest of the game logic ...
 
-# Game Elements
-ball = pygame.Rect(width // 2, height // 2, 15, 15)
-ball_speed = [4, 4]
-paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
-
-# Main Game Loop
-running = True
-clock = pygame.time.Clock()
-
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    # Paddle Movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and paddle.top > 0:
-        paddle.y -= paddle_speed
-    if keys[pygame.K_DOWN] and paddle.bottom < height:
-        paddle.y += paddle_speed
-
-    # Ball Movement
-    ball.x += ball_speed[0]
-    ball.y += ball_speed[1]
-
-    if ball.top <= 0 or ball.bottom >= height:
-        ball_speed[1] *= -1
-    if ball.left <= 0 or ball.right >= width:
-        ball_speed[0] *= -1
-    if ball.colliderect(paddle):
-        ball_speed[0] *= -1
-
-    # Drawing
-    screen.fill((0, 0, 0))
-    pygame.draw.ellipse(screen, (255, 255, 255), ball)
-    pygame.draw.rect(screen, (255, 255, 255), paddle)
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()
+if __name__ == "__main__":
+    main()

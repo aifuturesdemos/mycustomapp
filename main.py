@@ -3,9 +3,16 @@ import pygame
 import sys
 
 # --- Vulnerable Input: Paddle speed from command-line ---
+def is_positive_integer(value):
+    try:
+        int_value = int(value)
+        return int_value > 0
+    except (ValueError, TypeError):
+        return False
+
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
+    if is_positive_integer(user_input):
         paddle_speed = int(user_input)  # Validated input
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")

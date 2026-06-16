@@ -5,7 +5,8 @@ import sys
 # --- Vulnerable Input: Paddle speed from command-line ---
 try:
     user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
+    # Strict validation: Only allow positive integers
+    if re.fullmatch(r'^[1-9]\d*$', user_input):
         paddle_speed = int(user_input)  # Validated input
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
@@ -49,7 +50,6 @@ while running:
         ball_speed[0] *= -1
     if ball.colliderect(paddle):
         ball_speed[0] *= -1
-
     # Drawing
     screen.fill((0, 0, 0))
     pygame.draw.ellipse(screen, (255, 255, 255), ball)

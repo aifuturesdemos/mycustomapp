@@ -6,7 +6,10 @@ import sys
 try:
     user_input = sys.argv[1]
     if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
+        paddle_speed = int(user_input)
+        # Enforce upper bound for security
+        if not (1 <= paddle_speed <= 20):
+            raise ValueError("paddle_speed must be between 1 and 20.")
     else:
         raise ValueError("Invalid input: Only positive integers are allowed.")
 except (IndexError, ValueError):

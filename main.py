@@ -1,60 +1,34 @@
-import re
-import pygame
-import sys
+import sqlite3
+from flask import Flask, request, jsonify
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+app = Flask(__name__)
+DATABASE = "app.db"
 
-# --- Pygame Setup ---
-pygame.init()
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
 
-# Game Elements
-ball = pygame.Rect(width // 2, height // 2, 15, 15)
-ball_speed = [4, 4]
-paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-# Main Game Loop
-running = True
-clock = pygame.time.Clock()
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form.get('username', '')
+    password = request.form.get('password', '')
 
-    # Paddle Movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and paddle.top > 0:
-        paddle.y -= paddle_speed
-    if keys[pygame.K_DOWN] and paddle.bottom < height:
-        paddle.y += paddle_speed
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, username FROM users WHERE username = ? AND password = ?",
+        (username, password),
+    )
+    user = cursor.fetchone()
+    conn.close()
 
-    # Ball Movement
-    ball.x += ball_speed[0]
-    ball.y += ball_speed[1]
+    if user:
+        return jsonify({"message": "Login successful", "user": dict(user)})
+    return jsonify({"message": "Invalid credentials"}), 401
 
-    if ball.top <= 0 or ball.bottom >= height:
-        ball_speed[1] *= -1
-    if ball.left <= 0 or ball.right >= width:
-        ball_speed[0] *= -1
-    if ball.colliderect(paddle):
-        ball_speed[0] *= -1
 
-    # Drawing
-    screen.fill((0, 0, 0))
-    pygame.draw.ellipse(screen, (255, 255, 255), ball)
-    pygame.draw.rect(screen, (255, 255, 255), paddle)
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()
+if __name__ == '__main__':
+    app.run(debug=False)

@@ -1,60 +1,41 @@
-import re
-import pygame
-import sys
+import subprocess
+from flask import Flask, request, jsonify
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+app = Flask(__name__)
 
-# --- Pygame Setup ---
-pygame.init()
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+ALLOWED_COMMANDS = {
+    "date": ["date"],
+    "uptime": ["uptime"],
+    "whoami": ["whoami"],
+}
 
-# Game Elements
-ball = pygame.Rect(width // 2, height // 2, 15, 15)
-ball_speed = [4, 4]
-paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
 
-# Main Game Loop
-running = True
-clock = pygame.time.Clock()
+@app.route("/run", methods=["POST"])
+def run_command():
+    data = request.get_json(silent=True) or {}
+    command = data.get("command", "")
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    if command not in ALLOWED_COMMANDS:
+        return jsonify({"error": "invalid command"}), 400
 
-    # Paddle Movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and paddle.top > 0:
-        paddle.y -= paddle_speed
-    if keys[pygame.K_DOWN] and paddle.bottom < height:
-        paddle.y += paddle_speed
+    try:
+        result = subprocess.run(
+            ALLOWED_COMMANDS[command],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        return jsonify(
+            {
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "returncode": result.returncode,
+            }
+        )
+    except subprocess.TimeoutExpired:
+        return jsonify({"error": "command timed out"}), 504
 
-    # Ball Movement
-    ball.x += ball_speed[0]
-    ball.y += ball_speed[1]
 
-    if ball.top <= 0 or ball.bottom >= height:
-        ball_speed[1] *= -1
-    if ball.left <= 0 or ball.right >= width:
-        ball_speed[0] *= -1
-    if ball.colliderect(paddle):
-        ball_speed[0] *= -1
-
-    # Drawing
-    screen.fill((0, 0, 0))
-    pygame.draw.ellipse(screen, (255, 255, 255), ball)
-    pygame.draw.rect(screen, (255, 255, 255), paddle)
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port=5000)

@@ -1,60 +1,46 @@
-import re
-import pygame
-import sys
+import ast
+from flask import Flask, request, jsonify
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+app = Flask(__name__)
 
-# --- Pygame Setup ---
-pygame.init()
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+ALLOWED_OPERATIONS = {"sum", "max", "min", "len", "sorted"}
 
-# Game Elements
-ball = pygame.Rect(width // 2, height // 2, 15, 15)
-ball_speed = [4, 4]
-paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
 
-# Main Game Loop
-running = True
-clock = pygame.time.Clock()
+def safe_execute(operation, payload):
+    if operation not in ALLOWED_OPERATIONS:
+        raise ValueError("Operation not allowed")
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    try:
+        data = ast.literal_eval(payload)
+    except (ValueError, SyntaxError) as exc:
+        raise ValueError("Invalid payload format") from exc
 
-    # Paddle Movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and paddle.top > 0:
-        paddle.y -= paddle_speed
-    if keys[pygame.K_DOWN] and paddle.bottom < height:
-        paddle.y += paddle_speed
+    if operation == "sum":
+        return sum(data)
+    if operation == "max":
+        return max(data)
+    if operation == "min":
+        return min(data)
+    if operation == "len":
+        return len(data)
+    if operation == "sorted":
+        return sorted(data)
 
-    # Ball Movement
-    ball.x += ball_speed[0]
-    ball.y += ball_speed[1]
+    raise ValueError("Unsupported operation")
 
-    if ball.top <= 0 or ball.bottom >= height:
-        ball_speed[1] *= -1
-    if ball.left <= 0 or ball.right >= width:
-        ball_speed[0] *= -1
-    if ball.colliderect(paddle):
-        ball_speed[0] *= -1
 
-    # Drawing
-    screen.fill((0, 0, 0))
-    pygame.draw.ellipse(screen, (255, 255, 255), ball)
-    pygame.draw.rect(screen, (255, 255, 255), paddle)
-    pygame.display.flip()
-    clock.tick(60)
+@app.route('/execute', methods=['POST'])
+def execute():
+    body = request.get_json(silent=True) or {}
+    operation = body.get('operation', '')
+    payload = body.get('payload', '')
 
-pygame.quit()
+    try:
+        result = safe_execute(operation, payload)
+        return jsonify({"result": result}), 200
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+if __name__ == '__main__':
+    app.run(debug=False)

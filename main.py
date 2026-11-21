@@ -1,60 +1,32 @@
-import re
-import pygame
-import sys
+import html
+from flask import Flask, request, jsonify
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+app = Flask(__name__)
 
-# --- Pygame Setup ---
-pygame.init()
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
 
-# Game Elements
-ball = pygame.Rect(width // 2, height // 2, 15, 15)
-ball_speed = [4, 4]
-paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
+@app.route('/')
+def home():
+    return '''
+    <h2>Welcome to My Custom App</h2>
+    <form action="/greet" method="get">
+        <label for="name">Enter your name:</label>
+        <input type="text" id="name" name="name">
+        <input type="submit" value="Greet Me">
+    </form>
+    '''
 
-# Main Game Loop
-running = True
-clock = pygame.time.Clock()
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+@app.route('/greet')
+def greet():
+    name = request.args.get('name', '')
+    safe_name = html.escape(name, quote=True)
+    return f"<h3>Hello, {safe_name}!</h3>"
 
-    # Paddle Movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and paddle.top > 0:
-        paddle.y -= paddle_speed
-    if keys[pygame.K_DOWN] and paddle.bottom < height:
-        paddle.y += paddle_speed
 
-    # Ball Movement
-    ball.x += ball_speed[0]
-    ball.y += ball_speed[1]
+@app.route('/health')
+def health():
+    return jsonify({"status": "ok"})
 
-    if ball.top <= 0 or ball.bottom >= height:
-        ball_speed[1] *= -1
-    if ball.left <= 0 or ball.right >= width:
-        ball_speed[0] *= -1
-    if ball.colliderect(paddle):
-        ball_speed[0] *= -1
 
-    # Drawing
-    screen.fill((0, 0, 0))
-    pygame.draw.ellipse(screen, (255, 255, 255), ball)
-    pygame.draw.rect(screen, (255, 255, 255), paddle)
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

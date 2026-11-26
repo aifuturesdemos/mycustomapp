@@ -1,60 +1,52 @@
-import re
-import pygame
-import sys
+import ast
+import operator
 
-# --- Vulnerable Input: Paddle speed from command-line ---
-try:
-    user_input = sys.argv[1]
-    if re.match(r'^\d+$', user_input):
-        paddle_speed = int(user_input)  # Validated input
-    else:
-        raise ValueError("Invalid input: Only positive integers are allowed.")
-except (IndexError, ValueError):
-    paddle_speed = 5  # Fallback default
+_ALLOWED_BINOPS = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+}
 
-# --- Pygame Setup ---
-pygame.init()
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Vulnerable Ping Pong")
+_ALLOWED_UNARYOPS = {
+    ast.UAdd: operator.pos,
+    ast.USub: operator.neg,
+}
 
-# Game Elements
-ball = pygame.Rect(width // 2, height // 2, 15, 15)
-ball_speed = [4, 4]
-paddle = pygame.Rect(width - 20, height // 2 - 60, 10, 120)
 
-# Main Game Loop
-running = True
-clock = pygame.time.Clock()
+def safe_eval(expression: str) -> float:
+    """Safely evaluate a simple arithmetic expression.
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    Supports numbers and arithmetic operators only.
+    """
+    node = ast.parse(expression, mode="eval")
 
-    # Paddle Movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP] and paddle.top > 0:
-        paddle.y -= paddle_speed
-    if keys[pygame.K_DOWN] and paddle.bottom < height:
-        paddle.y += paddle_speed
+    def _eval(n):
+        if isinstance(n, ast.Expression):
+            return _eval(n.body)
+        if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)):
+            return n.value
+        if isinstance(n, ast.Num):
+            return n.n
+        if isinstance(n, ast.BinOp) and type(n.op) in _ALLOWED_BINOPS:
+            return _ALLOWED_BINOPS[type(n.op)](_eval(n.left), _eval(n.right))
+        if isinstance(n, ast.UnaryOp) and type(n.op) in _ALLOWED_UNARYOPS:
+            return _ALLOWED_UNARYOPS[type(n.op)](_eval(n.operand))
+        raise ValueError("Unsupported expression")
 
-    # Ball Movement
-    ball.x += ball_speed[0]
-    ball.y += ball_speed[1]
+    return _eval(node)
 
-    if ball.top <= 0 or ball.bottom >= height:
-        ball_speed[1] *= -1
-    if ball.left <= 0 or ball.right >= width:
-        ball_speed[0] *= -1
-    if ball.colliderect(paddle):
-        ball_speed[0] *= -1
 
-    # Drawing
-    screen.fill((0, 0, 0))
-    pygame.draw.ellipse(screen, (255, 255, 255), ball)
-    pygame.draw.rect(screen, (255, 255, 255), paddle)
-    pygame.display.flip()
-    clock.tick(60)
+def main():
+    user_input = input("Enter arithmetic expression: ").strip()
+    try:
+        result = safe_eval(user_input)
+        print(f"Result: {result}")
+    except Exception:
+        print("Invalid expression")
 
-pygame.quit()
+
+if __name__ == "__main__":
+    main()
